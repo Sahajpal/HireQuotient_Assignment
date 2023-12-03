@@ -5,8 +5,8 @@ import FirstPage from "../assets/begin_icon.svg";
 import LastPage from "../assets/last_icon.svg";
 
 const Pagination = ({
-  postsPerPage,
-  totalPosts,
+  membersPerPage,
+  totalMembers,
   paginate,
   previousPage,
   nextPage,
@@ -14,8 +14,8 @@ const Pagination = ({
   firstPage,
   lastPage,
 }: {
-  postsPerPage: number;
-  totalPosts: number;
+  membersPerPage: number;
+  totalMembers: number;
   paginate: (pageNumber: number) => void;
   previousPage: () => void;
   nextPage: () => void;
@@ -25,7 +25,7 @@ const Pagination = ({
 }) => {
   const pageNumbers = [];
 
-  for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
+  for (let i = 1; i <= Math.ceil(totalMembers / membersPerPage); i++) {
     pageNumbers.push(i);
   }
 
@@ -35,9 +35,9 @@ const Pagination = ({
         <li className="me-10">
           <Typography variant="h6" color="black" className="font-bold">
             {"Page " +
-              pageNumbers[pageNumber - 1] +
+              (pageNumbers?.[pageNumber - 1] ?? 0) +
               " of " +
-              pageNumbers[pageNumbers.length - 1]}
+              (pageNumbers?.[pageNumbers.length - 1] ?? 0)}
           </Typography>
         </li>
         <li>

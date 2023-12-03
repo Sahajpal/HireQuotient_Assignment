@@ -8,19 +8,19 @@ import {
 import Pagination from "./Pagination";
 import EditIcon from "../assets/edit_icon.svg";
 import DeleteIcon from "../assets/delete_icon.svg";
+import { Member } from "../types";
 
-const TABLE_HEAD = ["", "Name", "Email", "Role", "Actions"];
+const TABLE_HEAD = ["Checkbox", "Name", "Email", "Role", "Actions"];
 
-function List(props: any) {
+function Table(props: any) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [postsPerPage] = useState(10);
-  const paginate = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
-  const [data, setData] = useState(props.data);
-  const [editing, setEditing] = useState(false);
+  const [membersPerPage] = useState(10);
+  const [data, setData] = useState(props.data as Member[]);
+  const [editing, setEditing] = useState({ index: null } as {
+    index: number | null;
+  });
 
-  const filteredData = data.filter((e: any) => {
+  const filteredData = data.filter((e) => {
     if (props.input === "") {
       return e;
     } else {
@@ -32,6 +32,10 @@ function List(props: any) {
     }
   });
 
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
   const previousPage = () => {
     if (currentPage !== 1) {
       setCurrentPage(currentPage - 1);
@@ -39,7 +43,7 @@ function List(props: any) {
   };
 
   const nextPage = () => {
-    if (currentPage !== Math.ceil(filteredData.length / postsPerPage)) {
+    if (currentPage !== Math.ceil(filteredData.length / membersPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -49,38 +53,30 @@ function List(props: any) {
   };
 
   const lastPage = () => {
-    setCurrentPage(Math.ceil(filteredData.length / postsPerPage));
+    setCurrentPage(Math.ceil(filteredData.length / membersPerPage));
   };
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = filteredData.slice(indexOfFirstPost, indexOfLastPost);
 
-  const handleDelete = (id: number) => {
+  const indexOfLastMember = currentPage * membersPerPage;
+  const indexOfFirstMember = indexOfLastMember - membersPerPage;
+  const currentMember = filteredData.slice(
+    indexOfFirstMember,
+    indexOfLastMember
+  );
+
+  const handleDelete = (id: string) => {
     const newData = data.filter((li: any) => li.id !== id);
     setData(newData);
   };
 
-  const deleteMultiple = () => {
-    let arrayIds: number[] = [];
-    data.forEach((d: any) => {
-      if (d.select) {
-        arrayIds.push(d.state);
-      }
-    });
-    console.log(arrayIds);
+  const handleEditing = (atIndex: number) => {
+    if (editing.index) {
+      setEditing({ index: null });
+    } else {
+      setEditing({ index: atIndex });
+    }
   };
 
-  const handleEditing = () => {
-    setEditing(true);
-  };
-  let viewMode: any = {};
-  let editMode: any = {};
-  if (editing) {
-    viewMode.display = "none";
-  } else {
-    editMode.display = "none";
-  }
-  const setNameUpdate = (updatedName: string, id: number) => {
+  const setNameUpdate = (updatedName: string, id: string) => {
     setData(
       data.map((d: any) => {
         if (d.id === id) {
@@ -90,7 +86,8 @@ function List(props: any) {
       })
     );
   };
-  const setEmailUpdate = (updatedEmail: string, id: number) => {
+
+  const setEmailUpdate = (updatedEmail: string, id: string) => {
     setData(
       data.map((d: any) => {
         if (d.id === id) {
@@ -100,7 +97,8 @@ function List(props: any) {
       })
     );
   };
-  const setRoleUpdate = (updatedRole: string, id: number) => {
+
+  const setRoleUpdate = (updatedRole: string, id: string) => {
     setData(
       data.map((d: any) => {
         if (d.id === id) {
@@ -110,9 +108,10 @@ function List(props: any) {
       })
     );
   };
+
   const handleUpdatedDone = (event: any) => {
     if (event.key === "Enter") {
-      setEditing(false);
+      setEditing({ index: null });
     }
   };
 
@@ -122,38 +121,61 @@ function List(props: any) {
         <table className="w-full min-w-max text-left">
           <thead>
             <tr>
-              {TABLE_HEAD.map((head) => (
-                <th
-                  key={head}
-                  className="border-b border-blue-gray-100 bg-blue-gray-50 p-6"
-                >
-                  <Typography
-                    variant="small"
-                    color="blue-gray"
-                    className="font-normal leading-none opacity-70"
+              {TABLE_HEAD.map((head) =>
+                head === "Checkbox" ? (
+                  <th
+                    key={head}
+                    className="border-b border-blue-gray-100 bg-blue-gray-50 p-6"
                   >
-                    {head}
-                  </Typography>
-                </th>
-              ))}
+                    <Checkbox
+                      className="bg-white"
+                      crossOrigin={undefined}
+                      defaultChecked={(() => {
+                        for (const post of currentMember) {
+                          if (!props.selectedIndicies.has(post.id)) {
+                            return false;
+                          }
+                        }
+                        return true;
+                      })()}
+                      onChange={(event) => {
+                        props.handleSelectAllOnPage(
+                          event,
+                          currentMember.map((p) => p.id)
+                        );
+                      }}
+                    />
+                  </th>
+                ) : (
+                  <th
+                    key={head}
+                    className="border-b border-blue-gray-100 bg-blue-gray-50 p-6"
+                  >
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal leading-none opacity-70"
+                    >
+                      {head}
+                    </Typography>
+                  </th>
+                )
+              )}
             </tr>
           </thead>
           <tbody>
-            {currentPosts
-              ? currentPosts.map(
-                  (
-                    {
-                      id,
-                      name,
-                      email,
-                      role,
-                    }: { id: any; name: any; email: any; role: any },
-                    index: number,
-                    selectState: boolean
-                  ) => (
-                    <tr key={id} className="even:bg-blue-gray-50/50">
-                      <td className="w-20">
-                        <Checkbox crossOrigin={undefined} />
+            {currentMember
+              ? currentMember.map(
+                  ({ id, name, email, role }, index: number) => (
+                    <tr key={id} className="border-b border-blue-gray-100">
+                      <td className="w-20 ps-6">
+                        <Checkbox
+                          crossOrigin={undefined}
+                          defaultChecked={props.selectedIndicies.has(id)}
+                          onChange={(event) => {
+                            props.onSelectionChange(event, id);
+                          }}
+                        />
                       </td>
                       <td className="p-4">
                         <Typography
@@ -161,11 +183,20 @@ function List(props: any) {
                           color="blue-gray"
                           className="font-normal"
                         >
-                          <div style={viewMode}>{name}</div>
+                          <div
+                            style={{
+                              display: editing.index === index ? "none" : "",
+                            }}
+                          >
+                            {name}
+                          </div>
                           <input
+                            className="bg-gray-100 p-4"
                             type="text"
                             value={name}
-                            style={editMode}
+                            style={{
+                              display: editing.index === index ? "" : "none",
+                            }}
                             onKeyDown={handleUpdatedDone}
                             onChange={(e) => setNameUpdate(e.target.value, id)}
                           />
@@ -177,11 +208,20 @@ function List(props: any) {
                           color="blue-gray"
                           className="font-normal"
                         >
-                          <div style={viewMode}>{email}</div>
+                          <div
+                            style={{
+                              display: editing.index === index ? "none" : "",
+                            }}
+                          >
+                            {email}
+                          </div>
                           <input
+                            className="bg-gray-100 p-4"
                             type="text"
                             value={email}
-                            style={editMode}
+                            style={{
+                              display: editing.index === index ? "" : "none",
+                            }}
                             onKeyDown={handleUpdatedDone}
                             onChange={(e) => setEmailUpdate(e.target.value, id)}
                           />
@@ -193,11 +233,20 @@ function List(props: any) {
                           color="blue-gray"
                           className="font-medium"
                         >
-                          <div style={viewMode}>{role}</div>
+                          <div
+                            style={{
+                              display: editing.index === index ? "none" : "",
+                            }}
+                          >
+                            {role}
+                          </div>
                           <input
+                            className="bg-gray-100 p-4"
                             type="text"
                             value={role}
-                            style={editMode}
+                            style={{
+                              display: editing.index === index ? "" : "none",
+                            }}
                             onKeyDown={handleUpdatedDone}
                             onChange={(e) => setRoleUpdate(e.target.value, id)}
                           />
@@ -206,7 +255,9 @@ function List(props: any) {
                       <td className="p-4 flex">
                         <IconButton
                           className="h-8 w-8 m-1 justify-center items-center bg-white"
-                          onClick={handleEditing}
+                          onClick={() => {
+                            handleEditing(index);
+                          }}
                         >
                           <img
                             className="object-contain h-4 w-4"
@@ -233,8 +284,8 @@ function List(props: any) {
           </tbody>
         </table>
         <Pagination
-          postsPerPage={postsPerPage}
-          totalPosts={filteredData.length}
+          membersPerPage={membersPerPage}
+          totalMembers={filteredData.length}
           paginate={paginate}
           previousPage={previousPage}
           nextPage={nextPage}
@@ -247,4 +298,4 @@ function List(props: any) {
   );
 }
 
-export default List;
+export default Table;

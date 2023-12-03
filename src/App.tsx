@@ -1,27 +1,19 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import api from "./api/adminUi";
-import { Input, IconButton } from "@material-tailwind/react";
+import { Input, IconButton, Typography } from "@material-tailwind/react";
 import Table from "./components/Table";
 import DeleteAllIcon from "./assets/delete_all_icon.svg";
+import { Member } from "./types";
 
 function App() {
-  const [data, setData] = useState<[] | null>(null);
+  const [allMemberData, setAllMemberData] = useState<Member[] | null>(null);
+  const [selectedIndicies, setSelectedIndicies] = useState(new Set<string>([]));
   const [inputText, setInputText] = useState("");
 
   const retrieveData = async () => {
-    await api.get("/members.json").then((data) => {
-      let members = data.data;
-      setData(
-        members.map((d: any) => {
-          return {
-            id: d.id,
-            name: d.name,
-            email: d.email,
-            role: d.role,
-          };
-        })
-      );
+    await api.get<Member[]>("/members.json").then((response) => {
+      setAllMemberData(response.data);
     });
   };
 
@@ -34,9 +26,54 @@ function App() {
     retrieveData();
   }, []);
 
+  const handleSelectionCheckbox = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    id: string
+  ) => {
+    if (event.target.checked) {
+      setSelectedIndicies((prevState) => {
+        prevState.add(id);
+        return prevState;
+      });
+    } else {
+      setSelectedIndicies((prevState) => {
+        prevState.delete(id);
+        return prevState;
+      });
+    }
+  };
+
+  const handleMultiDelete = () => {
+    setAllMemberData((prevState) => {
+      prevState = (prevState ?? []).filter((member) => {
+        return !selectedIndicies.has(member.id);
+      });
+      setSelectedIndicies(new Set<string>());
+      return prevState;
+    });
+  };
+
+  const handleSelectAllOnPage = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    ids: string[]
+  ) => {
+    if (event.target.checked) {
+      setSelectedIndicies(new Set(ids));
+    } else {
+      setSelectedIndicies(new Set<string>());
+    }
+  };
+
   return (
-    <div className="w-screen">
-      <div className="mx-10 mt-4 w-full inline-flex items-center justify-between">
+    <div>
+      <Typography
+        variant="h1"
+        color="black"
+        className="font-bold w-full text-center mt-6"
+      >
+        HireQuotient Assignment 2
+      </Typography>
+      <div className="mx-10 mt-4 flex items-stretch justify-between">
         <div className="w-96">
           <Input
             crossOrigin={undefined}
@@ -46,13 +83,22 @@ function App() {
           />
         </div>
         <IconButton
-          className="h-16 w-16 m-1 me-24 justify-center items-center bg-red-400"
-          onClick={() => {}}
+          className="h-16 w-16 justify-center items-center self-end bg-red-400"
+          onClick={handleMultiDelete}
         >
           <img src={DeleteAllIcon} alt="delete icon" />
         </IconButton>
       </div>
-      {data ? <Table input={inputText} data={data} /> : null}
+      {allMemberData ? (
+        <Table
+          key={`${allMemberData.length}-${selectedIndicies.size}`}
+          input={inputText}
+          data={allMemberData}
+          selectedIndicies={selectedIndicies}
+          handleSelectAllOnPage={handleSelectAllOnPage}
+          onSelectionChange={handleSelectionCheckbox}
+        />
+      ) : null}
     </div>
   );
 }
