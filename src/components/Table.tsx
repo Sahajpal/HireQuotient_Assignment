@@ -117,8 +117,8 @@ function Table(props: any) {
 
   return (
     <div>
-      <Card className="mx-10 my-4">
-        <table className="w-full min-w-max text-left">
+      <Card className="tableHolder mx-10 my-4">
+        <table className="table w-full min-w-max text-left">
           <thead>
             <tr>
               {TABLE_HEAD.map((head) =>
@@ -260,7 +260,7 @@ function Table(props: any) {
                           }}
                         >
                           <img
-                            className="object-contain h-4 w-4"
+                            className="edit object-contain h-4 w-4"
                             src={EditIcon}
                             alt="edit icon"
                           />
@@ -270,7 +270,7 @@ function Table(props: any) {
                           onClick={() => {}}
                         >
                           <img
-                            className="object-contain h-4 w-4"
+                            className="delete object-contain h-4 w-4"
                             src={DeleteIcon}
                             alt="delete icon"
                             onClick={() => handleDelete(id)}

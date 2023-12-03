@@ -42,7 +42,7 @@ const Pagination = ({
         </li>
         <li>
           <IconButton
-            className="h-10 w-10 justify-center items-center m-1  bg-white shadow-transparent"
+            className="jumpToFirstPage h-10 w-10 justify-center items-center m-1  bg-white shadow-transparent"
             onClick={firstPage}
           >
             <img src={FirstPage} alt="double arrow icon" />
@@ -50,7 +50,7 @@ const Pagination = ({
         </li>
         <li>
           <IconButton
-            className="h-8 w-8 justify-center items-center m-1  bg-white shadow-transparent"
+            className="previousPage h-8 w-8 justify-center items-center m-1  bg-white shadow-transparent"
             onClick={previousPage}
           >
             <img src={PreviousPage} alt="arrow icon" />
@@ -59,7 +59,7 @@ const Pagination = ({
         {pageNumbers.map((number) => (
           <li key={number}>
             <IconButton
-              className="h-8 w-8 justify-center items-center m-1"
+              className="pageNumbers h-8 w-8 justify-center items-center m-1"
               color="blue-gray"
               variant="outlined"
               onClick={() => paginate(number)}
@@ -72,7 +72,7 @@ const Pagination = ({
         ))}
         <li>
           <IconButton
-            className="h-8 w-8 justify-center items-center m-1 bg-white shadow-transparent"
+            className="nextPage h-8 w-8 justify-center items-center m-1 bg-white shadow-transparent"
             onClick={nextPage}
           >
             <img src={NextPage} alt="arrow icon" />
@@ -80,7 +80,7 @@ const Pagination = ({
         </li>
         <li>
           <IconButton
-            className="h-10 w-10 justify-center items-center m-1 bg-white shadow-transparent"
+            className="jumptoLastPage h-10 w-10 justify-center items-center m-1 bg-white shadow-transparent"
             onClick={lastPage}
           >
             <img src={LastPage} alt="double arrow icon" />

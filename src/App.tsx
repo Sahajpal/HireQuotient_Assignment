@@ -65,7 +65,7 @@ function App() {
   };
 
   return (
-    <div>
+    <div className="homePage">
       <Typography
         variant="h1"
         color="black"
@@ -73,7 +73,7 @@ function App() {
       >
         HireQuotient Assignment 2
       </Typography>
-      <div className="mx-10 mt-4 flex items-stretch justify-between">
+      <div className="row mx-10 mt-4 flex items-stretch justify-between">
         <div className="w-96">
           <Input
             crossOrigin={undefined}
@@ -83,7 +83,7 @@ function App() {
           />
         </div>
         <IconButton
-          className="h-16 w-16 justify-center items-center self-end bg-red-400"
+          className="deleteAllOnPage h-16 w-16 justify-center items-center self-end bg-red-400"
           onClick={handleMultiDelete}
         >
           <img src={DeleteAllIcon} alt="delete icon" />
@@ -91,6 +91,7 @@ function App() {
       </div>
       {allMemberData ? (
         <Table
+          className="table"
           key={`${allMemberData.length}-${selectedIndicies.size}`}
           input={inputText}
           data={allMemberData}
